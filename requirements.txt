@@ -1,0 +1,5 @@
+# runtime
+flask>=3.0        # only needed to actually serve the vulnerable_app target
+# dev / analysis
+pytest>=8.0
+ruff>=0.5
