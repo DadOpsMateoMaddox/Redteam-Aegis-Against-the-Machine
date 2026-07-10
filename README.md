@@ -1,5 +1,8 @@
 # swe-safety-redteam
 
+[![CI](https://github.com/DadOpsMateoMaddox/aegis-redteam-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/DadOpsMateoMaddox/aegis-redteam-agent/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A **safety-constrained red-team coding agent**. The planner proposes hypotheses,
 but nothing acts until it passes a policy choke point, and only allow-listed tools
 can ever run. The design goal is that the agent is useful *and* cannot be talked
