@@ -1,6 +1,4 @@
 """Attacker-controlled repo content must NOT override policy."""
-from pathlib import Path
-
 from src.policy.policy_engine import PolicyEngine
 from src.policy.schemas import ActionType, ProposedAction, RiskLevel
 from src.sandbox.audit_log import AuditLog

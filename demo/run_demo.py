@@ -27,7 +27,7 @@ def main():
 
     # A real finding the agent surfaced, with reproducible, hashed evidence.
     src = (ROOT / "vulnerable_app" / "app.py").read_text().splitlines()
-    line_no = next(i + 1 for i, l in enumerate(src) if "% (username, password)" in l)
+    line_no = next(i + 1 for i, ln in enumerate(src) if "% (username, password)" in ln)
     snippet = src[line_no - 1].strip()
     finding = Finding(
         id="F-001", title="SQL injection in login()", severity="high",
