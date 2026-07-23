@@ -18,7 +18,7 @@ except Exception:  # Flask optional; the file is primarily an analysis target
 
 def login(username, password):
     # SEEDED VULNERABILITY: SQL injection via string formatting.
-    conn = sqlite3.connect(":memory:")  # noqa: F841 – intentional lab artefact
+    conn = sqlite3.connect(":memory:")  # noqa: F841 – intentional lab artifact
     query = "SELECT * FROM users WHERE user = '%s' AND pw = '%s'" % (username, password)
     return query  # returned (not executed) so the analyzer can inspect it
 
