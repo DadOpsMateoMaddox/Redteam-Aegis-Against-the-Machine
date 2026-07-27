@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Aegis — Red-Team Console</title>
+<link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo-mark"></span>
+    <div class="brand-text">
+      <div class="brand-title">AEGIS // AGAINST THE MACHINE</div>
+      <div class="brand-sub">safety-constrained red-team agent — live console</div>
+    </div>
+  </div>
+  <nav class="topnav">
+    <a class="active" data-tab="overview">Overview</a>
+    <a data-tab="pipeline">Pipeline</a>
+    <a data-tab="policy">Policy</a>
+    <a data-tab="findings">Findings</a>
+    <a data-tab="runs">Runs</a>
+  </nav>
+  <div class="status-cluster">
+    <span class="status-pill ok"><span class="dot"></span> CHOKE POINT ENFORCED</span>
+    <span id="ws-pill" class="status-pill warn"><span class="dot"></span> WS CONNECTING</span>
+    <span class="clock" id="clock">--:--:-- UTC</span>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== OVERVIEW ===================== -->
+  <section class="tab" id="tab-overview">
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">RUNS RECORDED</div><div class="kpi-value" id="kpi-runs">0</div><div class="kpi-foot">persisted to reports/</div></div>
+      <div class="kpi ok"><div class="kpi-label">ACTIONS EXECUTED</div><div class="kpi-value" id="kpi-executed">0</div><div class="kpi-foot">pytest / ruff via ToolBroker</div></div>
+      <div class="kpi crit"><div class="kpi-label">ACTIONS BLOCKED</div><div class="kpi-value" id="kpi-blocked">0</div><div class="kpi-foot">policy denials, all-time</div></div>
+      <div class="kpi high"><div class="kpi-label">FINDINGS</div><div class="kpi-value" id="kpi-findings">0</div><div class="kpi-foot">with hashed evidence</div></div>
+      <div class="kpi"><div class="kpi-label">ACTIONS PROPOSED</div><div class="kpi-value" id="kpi-proposed">0</div><div class="kpi-foot">planner hypotheses, all-time</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>LATEST RUN</span><span class="panel-sub" id="latest-run-meta">no run yet</span></div>
+      <div class="panel-body" id="latest-run-summary">
+        <div class="empty-hint">Go to <b>Pipeline</b> and click <code>RUN</code> to send a goal through the planner &rarr; policy &rarr; broker pipeline.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>HOW THIS WORKS</span><span class="panel-sub">the choke point, in one line</span></div>
+      <div class="panel-body" style="font-family: var(--mono); font-size: 12px; color: var(--text-dim); line-height: 1.7;">
+        Planner proposes &rarr; PolicyEngine.validate_action() decides allow/deny &rarr; only allow-listed
+        commands ever reach ToolBroker.execute() &rarr; every evaluation is appended to an audit log.
+        This dashboard is a read/trigger client of that pipeline's public API — it cannot widen the
+        allow-list or the risk ceiling; the only thing a run can influence is the goal text.
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PIPELINE ===================== -->
+  <section class="tab hidden" id="tab-pipeline">
+    <div class="runbar">
+      <input type="text" id="goal-input" placeholder="e.g. find safety weaknesses in vulnerable_app" value="find safety weaknesses in vulnerable_app" maxlength="300" />
+      <button class="btn btn-primary" id="run-btn">RUN</button>
+      <span id="run-status" style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);"></span>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><span>LIVE PIPELINE FEED</span><span class="panel-sub" id="pipeline-run-id">idle</span></div>
+      <div class="panel-body">
+        <div class="step-list" id="step-feed">
+          <div class="empty-hint">No steps yet. Trigger a run above.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== POLICY ===================== -->
+  <section class="tab hidden" id="tab-policy">
+    <div class="panel">
+      <div class="panel-head"><span>ACTION-TYPE ALLOW-LIST</span><span class="panel-sub" id="policy-risk-ceiling">auto-approve ceiling: --</span></div>
+      <div class="panel-body">
+        <div class="policy-grid" id="policy-actions"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><span>TOOL BROKER</span><span class="panel-sub">fixed command templates — no arbitrary execution</span></div>
+      <div class="panel-body">
+        <div class="policy-grid" id="policy-tools"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FINDINGS ===================== -->
+  <section class="tab hidden" id="tab-findings">
+    <div class="panel">
+      <div class="panel-head"><span>FINDINGS</span><span class="panel-sub">reproducible, hashed evidence — across all runs</span></div>
+      <div class="panel-body" id="findings-list">
+        <div class="empty-hint">No findings recorded yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RUNS ===================== -->
+  <section class="tab hidden" id="tab-runs">
+    <div class="panel">
+      <div class="panel-head"><span>RUN HISTORY</span><span class="panel-sub">run-over-run delta vs the previous run of the same planner</span></div>
+      <div class="panel-body">
+        <table class="data-table" id="tbl-runs">
+          <thead><tr>
+            <th>run id</th><th>planner</th><th>goal</th>
+            <th class="num">proposed</th><th class="num">blocked</th><th class="num">executed</th>
+            <th class="num">findings</th><th class="num">Δ blocked</th><th class="num">duration</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="bottombar">
+  <span>Aegis Red-Team Console</span>
+  <span id="footer-note">policy + broker source of truth: src/policy, src/tools — this UI never touches them</span>
+</div>
+
+<script src="/static/dashboard.js"></script>
+</body>
+</html>

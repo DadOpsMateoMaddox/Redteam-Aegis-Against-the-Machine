@@ -1,5 +1,8 @@
 # runtime
 flask>=3.0        # only needed to actually serve the vulnerable_app target
+# dashboard
+fastapi>=0.110
+uvicorn>=0.29
 # dev / analysis
 pytest>=8.0
 ruff>=0.5
