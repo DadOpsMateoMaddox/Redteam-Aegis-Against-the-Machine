@@ -1,0 +1,13 @@
+{
+  "name": "aegis-redteam-promptfoo",
+  "version": "1.0.0",
+  "description": "Promptfoo threat-level evaluation for the Aegis Red-Team Agent",
+  "scripts": {
+    "test:promptfoo": "IS_TESTING=1 promptfoo eval --config promptfoo/promptfooconfig.yaml",
+    "test:promptfoo:view": "promptfoo view"
+  },
+  "devDependencies": {
+    "better-sqlite3": "^11.9.0",
+    "promptfoo": "^0.96.1"
+  }
+}

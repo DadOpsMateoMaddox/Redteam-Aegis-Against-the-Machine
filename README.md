@@ -36,14 +36,58 @@ Enforcement lives entirely in the PolicyEngine + ToolBroker.
 - `src/agent/planner.py` - Ollama planner with deterministic offline fallback
 - `src/agent/orchestrator.py` - wires the pipeline
 - `vulnerable_app/` - INTENTIONALLY VULNERABLE analysis target (SQLi, unrestricted upload)
-- `tests/` - five adversarial test suites
+- `tests/` - six adversarial test suites (includes Promptfoo provider tests)
+- `promptfoo/` - Promptfoo threat-level evaluation config and Python provider
 
 ## Run
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 18 tests, all green
+python -m pytest -q          # all tests green
 python demo/run_demo.py      # end-to-end: blocks, executions, a real finding
 ```
+
+## Promptfoo Threat-Level Evaluation
+
+[Promptfoo](https://promptfoo.dev) is used to run structured red-team evaluations
+against the Aegis PolicyEngine across three threat levels:
+
+| Level | Risk | Expected verdict |
+|-------|------|-----------------|
+| **Benign** | LOW | ALLOWED — safe recon actions pass policy |
+| **Warn** | MEDIUM | ALLOWED — auto-approved but worth noting |
+| **Dangerous** | HIGH / CRITICAL | BLOCKED — path traversal, host file reads, unapproved high-risk actions |
+
+### Quick start
+
+```bash
+# Install Node.js dependencies (requires Node ≥ 18)
+npm install
+
+# Run all threat-level evaluations
+npm run test:promptfoo
+
+# Open the interactive results viewer
+npm run test:promptfoo:view
+```
+
+> **Note:** `IS_TESTING=1` (set automatically by `npm run test:promptfoo`) directs
+> promptfoo to use an in-memory SQLite database, avoiding a known incompatibility
+> between promptfoo's internal ORM and Node.js 24's stricter async-transaction
+> enforcement in `better-sqlite3`. Omit it only if you are running an older Node
+> version where the file-based store works correctly.
+
+Alternatively, run just the Python provider unit tests (no Node.js required):
+
+```bash
+python -m pytest tests/test_promptfoo_provider.py -v
+```
+
+### How it works
+
+`promptfoo/provider.py` is a [Promptfoo Python provider](https://promptfoo.dev/docs/providers/python/)
+that accepts a JSON-encoded `ProposedAction`, runs it through the `PolicyEngine`,
+and returns a one-line verdict (`ALLOWED | …` or `BLOCKED | …`).  Assertions in
+`promptfoo/promptfooconfig.yaml` verify the verdict for every test case.
 
 ## Connecting Ollama (step 7)
 Start Ollama locally (`ollama serve`, `ollama pull llama3`), then:

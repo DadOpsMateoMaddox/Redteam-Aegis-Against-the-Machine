@@ -4,3 +4,6 @@ __pycache__/
 audit.log
 demo/audit.log
 reports/
+node_modules/
+package-lock.json
+.promptfoo/
