@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 audit.log
 demo/audit.log
+demo/redteam_audit.log
+redteam_audit.log
 reports/

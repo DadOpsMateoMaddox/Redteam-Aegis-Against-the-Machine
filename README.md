@@ -41,9 +41,23 @@ Enforcement lives entirely in the PolicyEngine + ToolBroker.
 ## Run
 ```bash
 pip install -r requirements.txt
-python -m pytest -q          # 18 tests, all green
+python -m pytest -q          # 28 tests, all green
 python demo/run_demo.py      # end-to-end: blocks, executions, a real finding
+python demo/redteam_eval_demo.py  # interactive model-target evaluation
 ```
+
+## Interactive Red-Team Evaluation
+`src/agent/redteam_evaluator.py` implements a tightened interaction contract for
+prompting a target model one turn at a time:
+
+1. Select and display one or more `AttackVector` strategies and a `RedTeamArea`.
+2. Autonomously generate **only** the first evaluation prompt.
+3. Stop and wait for the operator to paste the target model's exact response.
+4. Advance one turn at a time; never answer its own prompt, invent a response, or
+   generate the conversation in advance.
+
+Each `EvaluationTurn` preserves and displays the turn number, selected attack
+vector, red-team testing area, escalation stage, and generated prompt.
 
 ## Connecting Ollama (step 7)
 Start Ollama locally (`ollama serve`, `ollama pull llama3`), then:
